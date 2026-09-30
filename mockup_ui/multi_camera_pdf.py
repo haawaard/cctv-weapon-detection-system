@@ -1,11 +1,26 @@
 """Combined multi-camera PDF using the single-camera forensic report format."""
 from collections import Counter
-from datetime import datetime
+from datetime import datetime, timezone
 import json
 from pathlib import Path
 from xml.sax.saxutils import escape
 
 from mockup_ui.report_metrics import REPORT_DISCLAIMER as DISCLAIMER, metric_fields
+from mockup_ui.observation_review import DECISIONS
+
+
+def _review_timestamp(value):
+    """Keep the date and full-precision UTC time on predictable separate lines."""
+    if not value:
+        return None
+    try:
+        moment = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except (TypeError, ValueError):
+        return value
+    if moment.tzinfo is None:
+        return value
+    moment = moment.astimezone(timezone.utc)
+    return f"{moment.date().isoformat()}\n{moment.time().isoformat()}"
 
 
 def _camera_reports(path: Path, manifest: dict) -> list[tuple[dict, dict]]:
@@ -83,9 +98,10 @@ def write_session_pdf(path: Path, manifest: dict) -> None:
                               keepWithNext=True))
     styles.add(ParagraphStyle("Disclaimer", fontName=bold, fontSize=9.5, leading=14,
                               textColor=colors.HexColor("#493614")))
-    styles.add(ParagraphStyle("TableCell", fontName=regular, fontSize=8, leading=11,
-                              splitLongWords=True))
+    styles.add(ParagraphStyle("TableCell", fontName=regular, fontSize=8, leading=12,
+                              spaceBefore=0, spaceAfter=0, splitLongWords=True))
     styles.add(ParagraphStyle("TableHeader", parent=styles["TableCell"], fontName=bold))
+    styles.add(ParagraphStyle("FieldCell", parent=styles["ReportBody"], spaceBefore=0, spaceAfter=0))
     body = styles["ReportBody"]
 
     def p(value, style=body):
@@ -93,39 +109,39 @@ def write_session_pdf(path: Path, manifest: dict) -> None:
         return Paragraph(escape(value).replace("\n", "<br/>"), style)
 
     def pair(label, value):
-        return [p(label), p(value)]
+        return [p(label, styles["FieldCell"]), p(value, styles["FieldCell"])]
 
     page_size = landscape(A4)
     width = page_size[0] - 84
+    table_padding = [
+        ("VALIGN", (0, 0), (-1, -1), "TOP"),
+        ("LEFTPADDING", (0, 0), (-1, -1), 8),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 8),
+        ("TOPPADDING", (0, 0), (-1, -1), 7),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 7),
+    ]
 
     def record_table(headers, rows, column_widths):
         table = LongTable(
             [[p(value, styles["TableHeader"]) for value in headers]] +
             [[p(value, styles["TableCell"]) for value in row] for row in rows],
             colWidths=column_widths, repeatRows=1, hAlign="LEFT", splitInRow=1,
+            spaceBefore=8, spaceAfter=8,
         )
         table.setStyle(TableStyle([
-            ("VALIGN", (0, 0), (-1, -1), "TOP"),
+            *table_padding,
             ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#e8e9f4")),
             ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, colors.HexColor("#f6f7fb")]),
             ("LINEBELOW", (0, 0), (-1, -1), .35, colors.HexColor("#dce0e8")),
-            ("LEFTPADDING", (0, 0), (-1, -1), 6),
-            ("RIGHTPADDING", (0, 0), (-1, -1), 6),
-            ("TOPPADDING", (0, 0), (-1, -1), 5),
-            ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
         ]))
         return table
 
     def field_table(rows):
-        table = Table(rows, colWidths=[145, width - 145], hAlign="LEFT")
+        table = Table(rows, colWidths=[145, width - 145], hAlign="LEFT", spaceAfter=8)
         table.setStyle(TableStyle([
-            ("VALIGN", (0, 0), (-1, -1), "TOP"),
+            *table_padding,
             ("BACKGROUND", (0, 0), (0, -1), colors.HexColor("#f2f3f8")),
             ("LINEBELOW", (0, 0), (-1, -1), .4, colors.HexColor("#dce0e8")),
-            ("LEFTPADDING", (0, 0), (-1, -1), 8),
-            ("RIGHTPADDING", (0, 0), (-1, -1), 8),
-            ("TOPPADDING", (0, 0), (-1, -1), 7),
-            ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
         ]))
         return table
 
@@ -232,39 +248,40 @@ def write_session_pdf(path: Path, manifest: dict) -> None:
     if entries:
         story.append(record_table(
             ["Session time", "Camera", "Video time", "Frame", "Object", "Confidence",
-             "Box [x1,y1,x2,y2]", "Cross-view", "Analyst"],
+             "Box [x1,y1,x2,y2]", "Cross-view"],
             [[f"{time:.3f} s" if time is not None else "Not recorded", camera["camera_id"],
               f"{row['video_relative_timestamp_seconds']:.3f} s", row["frame_number"],
               row["object_label"].title(), f"{row['confidence_score']:.2%}",
               f"[{row['x1']}, {row['y1']}, {row['x2']}, {row['y2']}]",
-              session_row.get("corroboration_status", "Not recorded"),
-              row["analyst_decision"] or "Not reviewed"]
+              session_row.get("corroboration_status", "Not recorded")]
              for camera, row, session_row, time in entries],
-            [70, 65, 70, 45, 60, 70, 135, 110, width - 625],
+            [80, 75, 80, 55, 70, 80, 160, width - 600],
         ))
     else:
         story.append(p("No handgun or knife observations met the configured confidence threshold."))
 
     story.append(section("Analyst Review Information"))
     all_rows = [row for _, report in camera_reports for row in report["detections"]]
-    decisions = Counter(row["analyst_decision"] or "Not reviewed" for row in all_rows)
-    reviewed = sum(row["analyst_decision"] is not None for row in all_rows)
-    decision_summary = "; ".join(f"{decision}: {count}" for decision, count in sorted(decisions.items())) or "No observations"
-    story.append(field_table([
+    reviewed_entries = [entry for entry in entries if entry[1]["analyst_decision"] in DECISIONS]
+    decisions = Counter(row["analyst_decision"] for _, row, _, _ in reviewed_entries)
+    reviewed = len(reviewed_entries)
+    decision_summary = "; ".join(f"{decision}: {count}" for decision, count in sorted(decisions.items())) or "No reviews recorded"
+    review_summary = field_table([
         pair("Review coverage", f"{reviewed} of {len(all_rows)} observations reviewed"),
         pair("Decision totals", decision_summary),
-    ]))
-    if entries:
-        story.append(Spacer(1, 8))
+    ])
+    review_summary.keepWithNext = True
+    story.append(review_summary)
+    if reviewed_entries:
         story.append(record_table(
             ["Observation ID", "Camera / frame", "Analyst decision", "Analyst notes", "Reviewed (UTC)"],
             [[row["observation_id"], f"{camera['camera_id']} / {row['frame_number']}",
-              row["analyst_decision"] or "Not reviewed", row["analyst_notes"] or "No notes provided.",
-              row["reviewed_at"]] for camera, row, _, _ in entries],
-            [220, 90, 95, width - 530, 125],
+              row["analyst_decision"], row["analyst_notes"] or "No notes provided.",
+              _review_timestamp(row["reviewed_at"])] for camera, row, _, _ in reviewed_entries],
+            [230, 90, 95, width - 530, 115],
         ))
     else:
-        story.append(p("There are no observations available for analyst review."))
+        story.append(p("No reviewed observations to display."))
 
     story.append(section("Source References and Traceability"))
     if manifest.get("reconstruction_note"):

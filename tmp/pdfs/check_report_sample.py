@@ -15,7 +15,9 @@ assert all(page.mediabox.width > page.mediabox.height for page in combined.pages
 reports = [json.loads(path.read_text()) for path in (root / 'tmp/pdfs/report-refresh').glob('CAM-*/forensic_report.json')]
 rows = [row for report in reports for row in report['detections']]
 assert len(rows) == 58
-assert all(text.count(row['observation_id']) == 1 for row in rows)
+reviewed = [row for row in rows if row['analyst_decision'] in ('Accept', 'Reject', 'Uncertain')]
+assert all(text.count(row['observation_id']) == 1 for row in reviewed)
+assert all(row['observation_id'] not in text for row in rows if row not in reviewed)
 table = text.split(headings[4], 1)[1].split(headings[5], 1)[0]
 for row in rows:
     assert f"[{row['x1']}, {row['y1']}, {row['x2']}, {row['y2']}]" in table

@@ -80,6 +80,9 @@ and the forensic report.
    for each camera. Individual PDFs include TCR and omit cross-camera content and MCCR.
    The combined PDF places metrics before a chronological observation table with
    repeated column headers, followed by analyst reviews and source traceability.
+   The observation table omits analyst decisions; the analyst review table lists
+   only observations with a saved Accept, Reject or Uncertain decision. Review
+   coverage still counts all detected observations, including those awaiting review.
    The session's MCCR, alignment information and analyst decisions are preserved
    in its PDF and structured records. Matching observation IDs and detailed
    corroboration reasons are available in `session.json` and `combined_observations.csv`.

@@ -45,12 +45,13 @@ class PdfExportTests(unittest.TestCase):
         result.review_path = folder / "reviews.json"
         return CameraSource(video, camera_id, offset_seconds=offset), result
 
-    def export(self, counts):
+    def export(self, counts, reviews=("Reject",)):
         pairs = [self.fixture(f"CAM-0{i+1}", count, 2 if i == 0 else 0) for i, count in enumerate(counts)]
         sources, results = zip(*pairs)
-        if results[0].detections:
+        if results[0].detections and reviews:
             store = ReviewStore.for_result(results[0])
-            store.save_review(store.observations[0]["observationId"], "Reject", "Synthetic <review> & reason\nSecond line.")
+            for observation, decision in zip(store.observations, reviews):
+                store.save_review(observation["observationId"], decision, "Synthetic <review> & reason\nSecond line.")
         folder = export_session(sources, results, Alignment("TEST-SCENE", True, "Synthetic clock", .25), self.folder)
         return folder, json.loads((folder / "session.json").read_text())
 
@@ -69,12 +70,20 @@ class PdfExportTests(unittest.TestCase):
         positions = [text.index(heading) for heading in headings]
         self.assertEqual(positions, sorted(positions))
         table_text = text.split(headings[4], 1)[1].split(headings[5], 1)[0]
+        review_text = text.split(headings[5], 1)[1].split(headings[6], 1)[0]
         self.assertEqual(table_text.count("91.23%"), 88)
+        self.assertNotIn("Analyst", table_text)
+        self.assertNotIn("Not reviewed", review_text)
+        self.assertEqual(review_text.count("-OBS-"), 1)
+        self.assertIn("1 of 88 observations reviewed", review_text)
         row_positions = []
         for row in manifest["observations"]:
             row_positions.append(table_text.index(
                 f"{row['session_seconds']:.3f} s\n{row['camera_id']}\n{row['video_seconds']:.3f} s\n{row['frame_number']}\nKnife\n91.23%"))
-            self.assertIn(row["observation_id"], text)
+            if row["analyst_decision"] == "Reject":
+                self.assertIn(row["observation_id"], review_text)
+            else:
+                self.assertNotIn(row["observation_id"], review_text)
         self.assertEqual(row_positions, sorted(row_positions))
         self.assertGreater(sum("Session time" in page for page in pages), 1)
         for page in pages:
@@ -112,6 +121,32 @@ class PdfExportTests(unittest.TestCase):
         self.assertIn("No handgun or knife observations met", text)
         self.assertIn("0 of 0 observations reviewed", text)
         self.assertIn("Source References and Traceability", text)
+
+    def test_unreviewed_detections_have_no_analyst_rows(self):
+        folder, _ = self.export([25, 25], reviews=())
+        text = "\n".join(page.extract_text() for page in PdfReader(folder / "forensic_report.pdf").pages)
+        review = text.split("Analyst Review Information", 1)[1].split("Source References and Traceability", 1)[0]
+        self.assertIn("0 of 50 observations reviewed", review)
+        self.assertIn("No reviewed observations to display.", review)
+        self.assertNotIn("Observation ID", review)
+        self.assertNotIn("-OBS-", review)
+        self.assertEqual(text.count("91.23%"), 50)
+
+    def test_all_human_decisions_and_full_precision_review_times_are_shown(self):
+        from datetime import datetime, timezone
+        folder, manifest = self.export([4, 1], reviews=("Accept", "Reject", "Uncertain"))
+        text = "\n".join(page.extract_text() for page in PdfReader(folder / "forensic_report.pdf").pages)
+        review = text.split("Analyst Review Information", 1)[1].split("Source References and Traceability", 1)[0]
+        self.assertIn("3 of 5 observations reviewed", review)
+        self.assertEqual(review.count("-OBS-"), 3)
+        self.assertNotIn("Not reviewed", review)
+        for row in manifest["observations"]:
+            if row["analyst_decision"] in ("Accept", "Reject", "Uncertain"):
+                self.assertIn(row["analyst_decision"], review)
+                self.assertIn(row["observation_id"], review)
+                time = datetime.fromisoformat(row["reviewed_at"]).astimezone(timezone.utc)
+                self.assertIn(time.date().isoformat() + "\n" + time.time().isoformat(), review)
+        self.assertNotIn("+00:00", review)
 
 
 if __name__ == "__main__":
