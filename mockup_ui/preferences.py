@@ -13,6 +13,7 @@ class Preferences:
     temporal_consistency: bool = True
     autoplay_results: bool = True
     export_folder: str = ""
+    reduce_motion: bool = False
 
 
 KEYS = {
@@ -22,6 +23,7 @@ KEYS = {
     "temporal_consistency": "analysis/default_temporal_consistency",
     "autoplay_results": "playback/autoplay_results",
     "export_folder": "export/default_folder",
+    "reduce_motion": "appearance/reduce_motion",
 }
 
 
@@ -38,7 +40,7 @@ def load_preferences(store=None):
         values["confidence_percent"] = max(10, min(95, int(values["confidence_percent"])))
     except (TypeError, ValueError, OverflowError):
         values["confidence_percent"] = defaults.confidence_percent
-    for field in ("cctv_intelligence", "temporal_consistency", "autoplay_results"):
+    for field in ("cctv_intelligence", "temporal_consistency", "autoplay_results", "reduce_motion"):
         value = str(values[field]).strip().lower()
         values[field] = value not in ("false", "0") if value in ("true", "false", "1", "0") else getattr(defaults, field)
     values["temporal_consistency"] = values["cctv_intelligence"] and values["temporal_consistency"]

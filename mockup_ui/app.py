@@ -78,6 +78,8 @@ from mockup_ui.page_shell import DetectionPageShell, page_panel, workspace_headi
 from mockup_ui.ui_theme import apply_theme, current_theme, load_stylesheet, restore_theme
 from mockup_ui.preferences import load_preferences, export_start_directory
 from mockup_ui.settings_dialog import SettingsDialog
+from mockup_ui.motion import (SpringButton as QPushButton, SpringTabs,
+    SpringSwitch as QCheckBox, SpringDialog as QDialog, enabled as motion_enabled)
 from mockup_ui.observation_review import REVIEW_DIR, ReviewStore
 from mockup_ui.review_panel import ObservationReviewDialog
 
@@ -921,7 +923,8 @@ class PulseDot(QWidget):
         self.update()
 
     def showEvent(self, event):
-        self._animation_timer.start()
+        if motion_enabled():
+            self._animation_timer.start()
         super().showEvent(event)
 
     def hideEvent(self, event):
@@ -933,12 +936,12 @@ class PulseDot(QWidget):
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
         painter.setPen(Qt.PenStyle.NoPen)
         wave = (sin(self.phase * tau) + 1) / 2
-        glow = QColor("#b9c0ff")
+        glow = QColor("#aec6ee")
         glow.setAlpha(35 + round(wave * 65))
         painter.setBrush(glow)
         radius = 4.2 + wave * 1.2
         painter.drawEllipse(QRectF(6 - radius, 6 - radius, radius * 2, radius * 2))
-        core = QColor("#dfe2ff")
+        core = QColor("#e6efff")
         core.setAlpha(185 + round(wave * 70))
         painter.setBrush(core)
         painter.drawEllipse(QRectF(3.5, 3.5, 5, 5))
@@ -962,7 +965,8 @@ class ScanWave(QWidget):
         self.update()
 
     def showEvent(self, event):
-        self._animation_timer.start()
+        if motion_enabled():
+            self._animation_timer.start()
         super().showEvent(event)
 
     def hideEvent(self, event):
@@ -977,7 +981,7 @@ class ScanWave(QWidget):
         for index in range(self.bar_count):
             wave = (sin(self.phase * tau + index * 0.72) + 1) / 2
             height = 4.0 + wave * 15.0
-            color = QColor("#e1e3ff" if wave > 0.72 else "#8589e7")
+            color = QColor("#dce8fb" if wave > 0.72 else "#789ccc")
             color.setAlpha(155 + round(wave * 100))
             painter.setBrush(color)
             x = index * (bar_width + gap)
@@ -1147,6 +1151,7 @@ class ProcessingDialog(QDialog):
             self.progress.setRange(0, 100)
             start = max(0, self.progress.value())
             self._progress_animation.stop()
+            self._progress_animation.setDuration(320 if motion_enabled() else 0)
             self._progress_animation.setStartValue(start)
             self._progress_animation.setEndValue(percent)
             self._progress_animation.start()
@@ -1334,6 +1339,8 @@ class DetectionCard(QFrame):
         layout.addWidget(coords)
 
 
+
+
 class MainWindow(QMainWindow):
     def __init__(self, initial_video: str | None = None):
         super().__init__()
@@ -1373,7 +1380,7 @@ class MainWindow(QMainWindow):
         shell_layout.setContentsMargins(0, 0, 0, 0)
         shell_layout.setSpacing(0)
         shell_layout.addWidget(self._header())
-        self.mode_tabs = QTabBar()
+        self.mode_tabs = SpringTabs()
         self.mode_tabs.setObjectName("modeTabs")
         self.mode_tabs.setExpanding(False)
         self.mode_tabs.addTab("Single video")
@@ -1565,10 +1572,12 @@ class MainWindow(QMainWindow):
         status_layout = QVBoxLayout(status_card)
         status_layout.setContentsMargins(12, 8, 12, 8)
         self.status_title = QLabel("Ready")
+        self.status_title.setWordWrap(True)
         self.status_title.setObjectName("statusTitle")
         self.status_detail = QLabel("")
         self.status_detail.setObjectName("mutedText")
         self.status_detail.setWordWrap(True)
+        self.status_detail.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Preferred)
         self.progress = QProgressBar()
         self.progress.setTextVisible(False)
         self.progress.setMaximumHeight(5)
@@ -1756,6 +1765,10 @@ class MainWindow(QMainWindow):
         self._sync_header_actions()
 
     def _mode_changed(self, index):
+        if index == 1 and (getattr(self, "_multi_camera_window", None) is None or
+                           not self._multi_camera_window.sources):
+            self.mode_tabs.setCurrentIndex(0)
+            return
         if hasattr(self, "pages") and index < self.pages.count():
             previous = self.pages.currentWidget()
             target = self.pages.widget(index)
@@ -1779,8 +1792,9 @@ class MainWindow(QMainWindow):
         multi_camera = getattr(self, "_multi_camera_window", None)
         busy = bool(self._thread or (multi_camera and multi_camera.worker))
         self.open_button.setEnabled(not busy)
-        self.close_videos_button.setEnabled(not busy and bool(self.video_info or multi_camera))
+        self.close_videos_button.setEnabled(not busy and bool(self.video_info or (multi_camera and multi_camera.sources)))
         if hasattr(self, "mode_tabs"):
+            self.mode_tabs.setTabEnabled(1, bool(multi_camera and multi_camera.sources))
             self.mode_tabs.setEnabled(not busy)
         completed = bool(multi_camera.results) if self.mode_tabs.currentIndex() == 1 and multi_camera else self.result is not None
         self.report_button.setEnabled(completed and not busy)
@@ -2273,8 +2287,8 @@ def main():
     application.setWindowIcon(QIcon(str(APP_ICON_PATH)))
     application.setStyle("Fusion")
     palette = QPalette()
-    palette.setColor(QPalette.ColorRole.Window, QColor("#f5f6f8"))
-    palette.setColor(QPalette.ColorRole.Highlight, QColor("#2f318e"))
+    palette.setColor(QPalette.ColorRole.Window, QColor("#f4f7fc"))
+    palette.setColor(QPalette.ColorRole.Highlight, QColor("#22396f"))
     application.setPalette(palette)
     window = MainWindow(initial_video=args.video)
     window.show()

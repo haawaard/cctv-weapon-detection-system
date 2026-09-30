@@ -1,0 +1,84 @@
+/* Shared iOS-inspired finish. Layout, typography scale and forensic content stay familiar. */
+QMainWindow, QWidget#shell { background: #f5f5f9; }
+QFrame#header, QFrame#configHero, QFrame#processingHero, QFrame#enhancementHero {
+    background: #303841;
+    border-bottom: 1px solid #444e5d;
+}
+QTabBar#modeTabs { background: #f0f0f6; border-bottom: 1px solid #e0e2eb; }
+QTabBar#modeTabs::tab { border: none; padding: 12px 20px; margin: 2px 0; }
+QTabBar#modeTabs::tab { color: #60718b; }
+QTabBar#modeTabs::tab:selected { background: transparent; color: #ffffff; border: none; }
+QTabBar#modeTabs::tab:hover:!selected { color: #22396f; }
+QPushButton { border-radius: 11px; border-color: #d9dce6; background: #ffffff; }
+QPushButton:hover { background: #eeeefb; border-color: #a2a5d8; }
+QPushButton:pressed { background: #e1e2f7; }
+QPushButton:focus { border: 2px solid #777acd; }
+QPushButton#primaryButton { background: #393b9f; border-color: #393b9f; border-radius: 11px; }
+QPushButton#primaryButton:hover { background: #5154bc; border-color: #8589e7; }
+QPushButton#primaryButton:pressed { background: #292c80; }
+QPushButton#primaryButton:disabled { color: #8190a6; background: #e6edf7; border-color: #dae3ef; }
+QPushButton#headerButton, QPushButton#settingsButton { background: #3b4552; border-color: #667385; border-radius: 11px; }
+QPushButton#headerButton:hover, QPushButton#settingsButton:hover { background: #525d6d; border-color: #abb3c5; }
+QPushButton#headerButton:disabled { background: #303841; border-color: #535e6d; }
+QPushButton#cameraEnhanceButton { border-radius: 10px; }
+QPushButton#decisionButton { border-radius: 11px; }
+QFrame#sidePanel, QFrame#summaryPanel { background: #ffffff; }
+QScrollArea#sidebarScroll, QScrollArea#sidebarScroll > QWidget,
+QWidget#sidebarContent { background: #ffffff; border: none; }
+QFrame#workspace { background: #f5f5f9; }
+QSplitter::handle { background: #e3e4ed; }
+QFrame#configBody, QFrame#enhancementBody { background: #f5f5f9; }
+QFrame#configCard, QFrame#cameraCard, QFrame#cameraEditor,
+QFrame#configActions, QFrame#enhancementActionBar,
+QFrame#basicVsrProfile, QFrame#enhancementProcessCard {
+    border: 1px solid #e0e2eb; border-radius: 14px; background: #ffffff;
+}
+QFrame#selectedEvidence, QFrame#enhancementCard, QFrame#multiMccrCard {
+    background: #f0f0fc; border: 1px solid #d8daef; border-radius: 12px;
+}
+QFrame#statusCard, QFrame#metricCard, QFrame#reportCard,
+QFrame#cameraEnhancementHeading, QFrame#configFilter,
+QFrame#processingStages, QFrame#enhancementPreviewArea {
+    background: #f3f4f9; border: 1px solid #e0e2eb; border-radius: 12px;
+}
+QFrame#configFilter[active="true"] { background: #f0f0fc; border-color: #d2d5eb; }
+QFrame#detectionCard, QFrame#enhancementPreviewCard { border-color: #e0e2eb; border-radius: 12px; }
+QFrame#toggleBox { background: #f0f0f6; border-color: #e0e2eb; border-radius: 11px; }
+QFrame#toggleBox QPushButton { border-radius: 9px; }
+QFrame#toggleBox QPushButton:checked { background: #ffffff; border-color: #d8daef; color: #2f318e; }
+QFrame#playerControls { background: #303841; border-radius: 8px; }
+QFrame#playerControls QPushButton { border-radius: 9px; background: #3b4552; }
+QFrame#observationsPanel { border-color: #e0e2eb; border-radius: 10px; }
+QLineEdit, QDoubleSpinBox, QSpinBox, QComboBox,
+QDialog#settingsDialog QSpinBox { border-radius: 10px; border-color: #d9dce6; background: #fafafe; }
+QLineEdit:focus, QDoubleSpinBox:focus, QSpinBox:focus, QComboBox:focus { border-color: #777acd; background: #ffffff; }
+QPlainTextEdit { border-radius: 11px; border-color: #d9dce6; background: #fafafe; }
+QListWidget { border-radius: 11px; border-color: #e0e2eb; background: #f5f5f9; }
+QListWidget::item { border-bottom-color: #e7e8f0; }
+QListWidget::item:hover { background: #eeeef9; }
+QListWidget::item:selected { background: #e5e6fa; color: #292b79; }
+QTableView { border-color: #e0e2eb; border-radius: 10px; alternate-background-color: #f7f7fc; gridline-color: #ececf3; }
+QHeaderView::section { background: #f1f2f8; border-bottom-color: #e0e2eb; }
+QMenu, QFrame#modelPopup { border-radius: 11px; border-color: #d9dce6; }
+QMenu::item { border-radius: 7px; }
+QToolTip { background: #303841; border: 1px solid #626d7d; border-radius: 7px; padding: 7px 10px; }
+QScrollBar:vertical { background: transparent; width: 8px; }
+QScrollBar::handle:vertical { background: #babfcd; border-radius: 4px; }
+QScrollBar::handle:vertical:hover { background: #9098af; }
+QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical { background: transparent; }
+QSlider:horizontal { min-height: 28px; }
+QSlider::groove:horizontal { height: 6px; border-radius: 3px; }
+QSlider::sub-page:horizontal { border-radius: 3px; }
+QSlider::handle:horizontal { background: #ffffff; border: 2px solid #777acd; width: 16px; margin: -7px 0; border-radius: 10px; }
+QProgressBar, QDialog QProgressBar { border: none; border-radius: 6px; background: #e8e9f4; }
+QProgressBar::chunk, QDialog QProgressBar::chunk { border-radius: 6px; background: #585cbb; }
+QLabel#automatedStatus, QLabel#reportObservation, QLabel#enhancementNotice,
+QLabel#multiCameraIntro, QLabel#processingNote { border-radius: 10px; }
+QLabel#confidencePill, QLabel#reviewBadge, QLabel#cameraStatus,
+QLabel#cameraSourceState, QLabel#enhancementPreviewBadge { border-radius: 7px; }
+QLabel#configFilterDescription { padding-left: 57px; }
+
+QWidget#multiCameraWorkspace QScrollArea#cameraSourcesScroll,
+QWidget#multiCameraWorkspace QScrollArea#cameraSourcesScroll > QWidget,
+QWidget#multiCameraWorkspace QWidget#cameraSourceList,
+QWidget#multiCameraWorkspace QWidget#cameraGridBody { background: transparent; border: none; }

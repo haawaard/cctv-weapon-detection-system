@@ -20,6 +20,8 @@ from mockup_ui.video_player import VideoPlayer
 from mockup_ui.page_shell import DetectionPageShell, page_panel, workspace_heading, summary_metrics, enhancement_heading
 from mockup_ui.ui_theme import load_stylesheet
 from mockup_ui.preferences import load_preferences, export_start_directory
+from mockup_ui.motion import (SpringButton as QPushButton, SpringDialog as QDialog,
+    SpringSwitch as QCheckBox)
 
 VIDEO_FILTER = "Videos (*.mp4 *.avi *.mov *.mkv *.webm *.m4v)"
 
@@ -286,7 +288,8 @@ class MultiCameraDialog(QWidget):
         add.clicked.connect(self.add_recordings)
         setup.addWidget(add)
         enhancement_card, enhancement_copy = enhancement_heading()
-        enhancement_copy.addWidget(label("Optional · enhance before detection", "cameraSourceDetail"))
+        self.enhancement_hint = label("Optional · enhance before detection", "cameraSourceDetail")
+        enhancement_copy.addWidget(self.enhancement_hint)
         setup.addWidget(enhancement_card)
         self.source_scroll = QScrollArea()
         self.source_scroll.setObjectName("cameraSourcesScroll")
@@ -358,7 +361,11 @@ class MultiCameraDialog(QWidget):
         self.grid_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.grid_scroll.viewport().installEventFilter(self)
         center.addWidget(self.grid_scroll, 4)
-        playback = QHBoxLayout()
+        playback_frame = QFrame()
+        playback_frame.setObjectName("playerControls")
+        playback = QHBoxLayout(playback_frame)
+        playback.setContentsMargins(9, 5, 9, 5)
+        playback.setSpacing(8)
         self.play_button = QPushButton("Play all")
         self.play_button.clicked.connect(self.toggle_playback)
         playback.addWidget(self.play_button)
@@ -368,7 +375,7 @@ class MultiCameraDialog(QWidget):
         playback.addWidget(self.seek, 1)
         self.time_label = label("Session 00:00.000")
         playback.addWidget(self.time_label)
-        center.addLayout(playback)
+        center.addWidget(playback_frame)
         observations = QFrame()
         observations.setObjectName("observationsPanel")
         observations_layout = QVBoxLayout(observations)
@@ -443,6 +450,8 @@ class MultiCameraDialog(QWidget):
         self._grid_columns = columns
         while self.camera_grid.count():
             self.camera_grid.takeAt(0)
+        if self.empty_camera_hint is not None:
+            self.camera_grid.addWidget(self.empty_camera_hint, 0, 0, 1, columns)
         for index, card in enumerate(self.camera_frames):
             self.camera_grid.addWidget(card, index // columns, index % columns)
         self.camera_grid.setColumnStretch(0, 1)
@@ -468,8 +477,27 @@ class MultiCameraDialog(QWidget):
             card[0].release()
         self.cards, self.editors = [], []
         source_widget, grid_widget = QWidget(), QWidget()
+        source_widget.setObjectName("cameraSourceList")
+        grid_widget.setObjectName("cameraGridBody")
         source_layout, grid = QVBoxLayout(source_widget), QGridLayout(grid_widget)
         self.camera_grid, self.camera_frames, self._grid_columns = grid, [], 0
+        self.empty_camera_hint = None
+        if not self.sources:
+            self.empty_camera_hint = label(
+                "Import camera recordings to begin\n\n"
+                "Add at least two videos of the same incident\n\n"
+                "Align recordings, enhance if needed, then analyze", "imageCanvas")
+            self.empty_camera_hint.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            self.empty_camera_hint.setProperty("hasImage", False)
+            self.empty_camera_hint.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Ignored)
+            empty_source = QFrame()
+            empty_source.setObjectName("selectedEvidence")
+            empty_box = QVBoxLayout(empty_source)
+            empty_box.setContentsMargins(12, 10, 12, 10)
+            empty_box.setSpacing(4)
+            empty_box.addWidget(label("No recordings selected", "evidenceTitle"))
+            empty_box.addWidget(label("Import CCTV footage from each camera.", "mutedText"))
+            source_layout.addWidget(empty_source)
         source_layout.setContentsMargins(0, 0, 5, 0)
         source_layout.setSpacing(9)
         grid.setContentsMargins(0, 0, 0, 0)
@@ -553,10 +581,25 @@ class MultiCameraDialog(QWidget):
                 old.deleteLater()
             scroll.setWidget(widget)
         self._layout_camera_cards()
-        self.camera_count.setText(f"CAMERA VIEWS / {len(self.sources):02d}")
-        self.workspace_meta.setText(f"{len(self.sources)} imported recordings")
+        self.camera_count.setText(f"CAMERA VIEWS / {len(self.sources):02d}" if self.sources else "CAMERA VIEWS")
+        self.workspace_meta.setText(f"{len(self.sources)} imported recordings" if self.sources else "Ready to import")
+        self.view.setItemText(0, "Imported recordings" if self.sources else "No recordings")
+        self.enhancement_hint.setText("Optional · enhance before detection" if self.sources else "Import recordings to enhance them.")
+        if not self.results:
+            self.summary_message.setText("Analyze the imported cameras to see weapon observations." if self.sources
+                                         else "Import camera recordings to begin, then align and analyze them.")
+            self.cross_view_counts.setText("Awaiting analysis." if self.sources else "No recordings analyzed yet.")
+            self.reviewed_metric.setText("0 observations reviewed" if self.sources else "No observations to review yet.")
         self.configure_button.setEnabled(len(self.sources) >= 2)
+        self.play_button.setEnabled(bool(self.sources))
+        self.seek.setEnabled(bool(self.sources))
+        self.details_button.setEnabled(bool(self.sources))
+        self.confirmed.setEnabled(bool(self.sources))
+        self.status_title.setText("Ready to analyze" if len(self.sources) >= 2 else "Add camera recordings")
+        self.status.setText("Confirm the incident and analyze all cameras." if len(self.sources) >= 2
+                            else "Add at least two recordings of the same incident.")
         self.update_range()
+        self.state_changed.emit()
 
     def update_range(self):
         if self.sources:
@@ -564,6 +607,9 @@ class MultiCameraDialog(QWidget):
                                round(max(s.offset_seconds + s.video.duration for s in self.sources) * 1000) - 1)
             self.seek.setValue(self.seek.minimum())
             self.seek_all(self.seek.value())
+        else:
+            self.seek.setRange(0, 0)
+            self.seek_all(0)
 
     def clear_results(self):
         self.results, self.rows = [], []
@@ -810,6 +856,10 @@ class MultiCameraDialog(QWidget):
 
     def seek_all(self, milliseconds):
         seconds = milliseconds / 1000
+        if not self.sources:
+            self.time_label.setText("Session —")
+            self.current_time_detail.setText("No recordings loaded")
+            return
         self.time_label.setText(f"Session {session_time(seconds)}")
         coverage = sum(source.offset_seconds <= seconds < source.offset_seconds + source.video.duration
                        for source in self.sources)

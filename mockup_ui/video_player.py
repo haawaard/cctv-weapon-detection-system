@@ -8,6 +8,7 @@ from PySide6.QtGui import QImage, QPixmap
 from PySide6.QtWidgets import QFrame, QHBoxLayout, QLabel, QPushButton, QSizePolicy, QSlider, QVBoxLayout, QWidget
 
 from mockup_ui.model_bridge import timecode
+from mockup_ui.motion import SpringButton as QPushButton
 
 
 class VideoCanvas(QLabel):

@@ -1,6 +1,6 @@
 """Shared outer geometry for both weapon-detection pages."""
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QFrame, QHBoxLayout, QLabel, QSplitter, QVBoxLayout
+from PySide6.QtWidgets import QFrame, QHBoxLayout, QLabel, QScrollArea, QSplitter, QVBoxLayout, QWidget
 
 
 class DetectionPageShell(QSplitter):
@@ -21,6 +21,20 @@ def page_panel(kind):
     panel.setObjectName(kind)
     layout = QVBoxLayout(panel)
     if kind == "sidePanel":
+        # The outer frame consumes space; scroll the controls instead of clipping them.
+        layout.setContentsMargins(0, 0, 0, 0)
+        scroll = QScrollArea()
+        scroll.setObjectName("sidebarScroll")
+        scroll.setFrameShape(QFrame.Shape.NoFrame)
+        scroll.setWidgetResizable(True)
+        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        scroll.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
+        scroll.verticalScrollBar().setFixedWidth(8)
+        content = QWidget()
+        content.setObjectName("sidebarContent")
+        scroll.setWidget(content)
+        layout.addWidget(scroll)
+        layout = QVBoxLayout(content)
         panel.setMinimumWidth(270)
         panel.setMaximumWidth(310)
         layout.setContentsMargins(14, 12, 14, 12)
@@ -54,6 +68,7 @@ def summary_metrics():
     for caption in ("DETECTIONS", "HANDGUNS", "KNIVES"):
         card = QFrame()
         card.setObjectName("metricCard")
+        card.setFixedHeight(64)
         box = QVBoxLayout(card)
         box.setContentsMargins(5, 8, 5, 8)
         box.setSpacing(1)

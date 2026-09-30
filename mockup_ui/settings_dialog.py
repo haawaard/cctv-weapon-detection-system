@@ -10,6 +10,8 @@ from PySide6.QtWidgets import (
 
 from mockup_ui.preferences import Preferences, load_preferences, save_preferences
 from mockup_ui.ui_theme import current_theme, load_stylesheet
+from mockup_ui.motion import (SpringButton as QPushButton, SpringSwitch,
+    SpringDialog as QDialog, finish_motion)
 
 
 class SettingsDialog(QDialog):
@@ -84,9 +86,11 @@ class SettingsDialog(QDialog):
         row.addWidget(theme_label, 1)
         row.addWidget(self.theme_combo)
         appearance.addLayout(row)
-        self.autoplay_checkbox = QCheckBox("Play annotated videos after analysis")
+        self.autoplay_checkbox = SpringSwitch("Play annotated videos after analysis")
         appearance.addWidget(self.autoplay_checkbox)
         appearance.addWidget(text("Start playback when single-video or multi-camera analysis finishes.", "configCardDescription"))
+        self.reduce_motion_checkbox = SpringSwitch("Reduce motion")
+        appearance.addWidget(self.reduce_motion_checkbox)
 
         detection = section("Detection defaults")
         detection.addWidget(text("Defaults for new imports and analysis setups. Adjustable before each run.", "configCardDescription"))
@@ -113,10 +117,10 @@ class SettingsDialog(QDialog):
         row.addWidget(self.confidence_spin)
         detection.addLayout(row)
         detection.addWidget(text("Lower values show more candidates; higher values require greater confidence.", "configCardDescription"))
-        self.intelligence_checkbox = QCheckBox("CCTV intelligence")
+        self.intelligence_checkbox = SpringSwitch("CCTV intelligence")
         detection.addWidget(self.intelligence_checkbox)
         detection.addWidget(text("Check person proximity, motion and object scale.", "configCardDescription"))
-        self.temporal_checkbox = QCheckBox("Temporal consistency")
+        self.temporal_checkbox = SpringSwitch("Temporal consistency")
         detection.addWidget(self.temporal_checkbox)
         detection.addWidget(text("Check nearby frames for persistence. Requires CCTV intelligence.", "configCardDescription"))
         self.intelligence_checkbox.toggled.connect(self._toggle_intelligence)
@@ -175,6 +179,7 @@ class SettingsDialog(QDialog):
         self._toggle_intelligence(values.cctv_intelligence)
         self.temporal_checkbox.setChecked(values.cctv_intelligence and values.temporal_consistency)
         self.autoplay_checkbox.setChecked(values.autoplay_results)
+        self.reduce_motion_checkbox.setChecked(values.reduce_motion)
         self.folder_edit.setText(values.export_folder)
         self.folder_edit.setToolTip(values.export_folder or str(Path.home()))
         self.error_label.hide()
@@ -195,6 +200,7 @@ class SettingsDialog(QDialog):
             cctv_intelligence=self.intelligence_checkbox.isChecked(),
             temporal_consistency=self.intelligence_checkbox.isChecked() and self.temporal_checkbox.isChecked(),
             autoplay_results=self.autoplay_checkbox.isChecked(), export_folder=self.folder_edit.text(),
+            reduce_motion=self.reduce_motion_checkbox.isChecked(),
         )
         if values.export_folder and not Path(values.export_folder).is_dir():
             self.error_label.setText("That export folder is unavailable. Choose an existing folder or restore defaults.")
@@ -207,4 +213,5 @@ class SettingsDialog(QDialog):
             self.error_label.show()
             return
         self.saved_preferences = values
+        finish_motion()
         super().accept()

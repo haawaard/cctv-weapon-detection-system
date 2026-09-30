@@ -111,6 +111,48 @@ class MultiCameraUiTests(unittest.TestCase):
         self.window = MultiCameraDialog(self.videos)
         self.addCleanup(self.window.close)
 
+    def test_multi_camera_tab_requires_imported_recordings(self):
+        main = MainWindow()
+        self.addCleanup(main.close)
+        main.show()
+        self.assertFalse(main.mode_tabs.isTabEnabled(1))
+        QTest.mouseClick(main.mode_tabs, Qt.MouseButton.LeftButton, pos=main.mode_tabs.tabRect(1).center())
+        self.assertEqual(main.mode_tabs.currentIndex(), 0)
+        self.assertIsNone(getattr(main, "_multi_camera_window", None))
+        with patch.object(QFileDialog, "getOpenFileNames", return_value=([str(v.path) for v in self.videos], "")):
+            main.choose_video()
+        multi = main._multi_camera_window
+        self.assertIs(main.pages.currentWidget(), multi)
+        self.assertTrue(main.mode_tabs.isTabEnabled(1))
+        self.assertEqual(len(multi.sources), 2)
+        self.assertTrue(multi.configure_button.isEnabled())
+        self.assertTrue(main.close_videos_button.isEnabled())
+        multi.remove_recording(1)
+        multi.remove_recording(0)
+        self.assertIsNotNone(multi.empty_camera_hint)
+        self.assertFalse(multi.play_button.isEnabled())
+        self.assertFalse(main.close_videos_button.isEnabled())
+        self.assertFalse(main.mode_tabs.isTabEnabled(1))
+        self.assertEqual(main.mode_tabs.currentIndex(), 0)
+        main.close_videos()
+        self.assertFalse(main.mode_tabs.isTabEnabled(1))
+        self.assertEqual(main.pages.count(), 1)
+
+    def test_single_video_keeps_multi_camera_tab_disabled(self):
+        main = MainWindow()
+        self.addCleanup(main.close)
+        main.load_video(str(self.videos[0].path))
+        capture = main.player.capture
+        main.mode_tabs.setCurrentIndex(1)
+        self.assertFalse(main.mode_tabs.isTabEnabled(1))
+        self.assertEqual(main.mode_tabs.currentIndex(), 0)
+        self.assertEqual(main.video_info.path, self.videos[0].path)
+        self.assertIs(main.player.capture, capture)
+        self.assertTrue(capture.isOpened())
+        self.assertFalse(main.report_button.isEnabled())
+        main.mode_tabs.setCurrentIndex(0)
+        self.assertIs(main.pages.currentWidget(), main.pages.widget(0))
+
     def test_batch_processing_playback_review_export_and_reset(self):
         self.window.scene.setText("TEST-SCENE")
         self.window.alignment.method = "Synthetic shared start"
@@ -224,6 +266,8 @@ class MultiCameraUiTests(unittest.TestCase):
             phase = popup.scan_wave.phase
             QTest.qWait(40)
             self.assertNotEqual(popup.scan_wave.phase, phase)
+            # Position is intentionally transient during the 560 ms spring entrance.
+            QTest.qWait(600)
             self.assertLessEqual((popup.frameGeometry().center() - self.window.frameGeometry().center()).manhattanLength(), 12)
         finally:
             gate.set()
