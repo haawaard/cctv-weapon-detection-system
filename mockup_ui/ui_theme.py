@@ -57,9 +57,12 @@ def load_stylesheet():
     return source + """
 QWidget#multiCameraWorkspace QScrollArea > QWidget,
 QWidget#multiCameraWorkspace QScrollArea > QWidget > QWidget { background: #232c35; }
-QDialog#configurationDialog QSlider::groove:horizontal { background: #536071; }
-QDialog#configurationDialog QSlider::sub-page:horizontal { background: #8b8fe8; }
-QDialog#configurationDialog QSlider::handle:horizontal { background: #e2e7ee; border-color: #8b8fe8; }
+QDialog#configurationDialog QSlider::groove:horizontal,
+QDialog#settingsDialog QSlider::groove:horizontal { background: #536071; }
+QDialog#configurationDialog QSlider::sub-page:horizontal,
+QDialog#settingsDialog QSlider::sub-page:horizontal { background: #8b8fe8; }
+QDialog#configurationDialog QSlider::handle:horizontal,
+QDialog#settingsDialog QSlider::handle:horizontal { background: #e2e7ee; border-color: #8b8fe8; }
 """
 
 
@@ -81,7 +84,7 @@ def apply_theme(window, theme, *, persist=True):
     window.setStyleSheet(stylesheet)
     # These surfaces also work standalone and therefore own a stylesheet.
     for widget in window.findChildren(QWidget):
-        if widget.objectName() in ("configurationDialog", "multiCameraWorkspace", "observationReviewDialog"):
+        if widget.objectName() in ("configurationDialog", "multiCameraWorkspace", "observationReviewDialog", "settingsDialog"):
             widget.setStyleSheet(stylesheet)
     if persist:
         QSettings("ForensiKada", "VideoDetection").setValue("appearance/theme", theme)

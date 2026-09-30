@@ -351,6 +351,23 @@ The application offers BasicVSR++ enhancement and multi-camera comparison, but i
 does not train models, track physical objects across cameras, or manage cases.
 Analyst decisions are entered manually.
 
+## System settings
+
+The gear button on the home screen opens a settings popup with **Save settings**,
+**Cancel**, and **Restore defaults**. Preferences are saved for your Windows user
+and restored when the app opens again.
+
+- **Color theme:** light or dark appearance.
+- **Result playback:** automatically play annotated videos after single-video or multi-camera analysis.
+- **Default confidence threshold:** 10-95%, applied to newly imported recordings.
+- **Detection checks:** default CCTV intelligence and temporal consistency choices
+  in the analysis configuration. Temporal consistency requires CCTV intelligence.
+- **Export location:** the initial folder in both Save video + report dialogs.
+
+Saving defaults preserves imported recordings, completed results, and an active
+run's configuration. Restore defaults changes the form until you click Save settings;
+Cancel discards edits. Detection options can still be adjusted before each run.
+
 ## What the results mean
 
 - **Detections:** the total number of handgun/knife observations across analyzed frames.

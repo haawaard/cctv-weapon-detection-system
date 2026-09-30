@@ -187,6 +187,9 @@ class MultiCameraUiTests(unittest.TestCase):
             self.assertNotIn("Cross-camera", text)
             individual.close()
             individual.deleteLater()
+            del individual
+            self.app.processEvents()
+            QTest.qWait(20)
         self.window.configure()
         self.assertEqual(self.window.results, [])
         self.assertTrue(self.window.setup.isEnabled())

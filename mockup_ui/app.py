@@ -51,7 +51,6 @@ from PySide6.QtWidgets import (
     QHBoxLayout,
     QLabel,
     QMainWindow,
-    QMenu,
     QMessageBox,
     QProgressBar,
     QPushButton,
@@ -77,6 +76,8 @@ from mockup_ui.video_player import VideoPlayer
 from mockup_ui.model_selector import ModelSelector
 from mockup_ui.page_shell import DetectionPageShell, page_panel, workspace_heading, summary_metrics, enhancement_heading
 from mockup_ui.ui_theme import apply_theme, current_theme, load_stylesheet, restore_theme
+from mockup_ui.preferences import load_preferences, export_start_directory
+from mockup_ui.settings_dialog import SettingsDialog
 from mockup_ui.observation_review import REVIEW_DIR, ReviewStore
 from mockup_ui.review_panel import ObservationReviewDialog
 
@@ -859,6 +860,9 @@ class DetectionConfigDialog(QDialog):
             ))
         refresh_filter(self.cctv_filter, self.cctv_status, True)
         refresh_filter(self.temporal_filter, self.temporal_status, True)
+        defaults = load_preferences()
+        self.cctv_intel_checkbox.setChecked(defaults.cctv_intelligence)
+        self.temporal_checkbox.setChecked(defaults.temporal_consistency)
 
         self.enhancement_notice = note(
             "INPUT FOOTAGE\nNo enhanced video has been created. Detection uses the recordings currently imported. "
@@ -1346,6 +1350,7 @@ class MainWindow(QMainWindow):
         self._analysis_requested = False
         self._config_dialog: DetectionConfigDialog | None = None
         self._processing_dialog: ProcessingDialog | None = None
+        self._settings_dialog: SettingsDialog | None = None
         self._model_retry = QTimer(self)
         self._model_retry.setInterval(2000)
         self._model_retry.timeout.connect(self.analyze)
@@ -1438,20 +1443,32 @@ class MainWindow(QMainWindow):
         self.settings_button.setFixedSize(42, 42)
         self.settings_button.setAccessibleName("System settings")
         self.settings_button.setToolTip("System settings")
-        self.settings_menu = QMenu(self)
-        self.settings_menu.addSection("Appearance")
-        self.dark_mode_action = self.settings_menu.addAction("Dark mode")
-        self.dark_mode_action.setCheckable(True)
-        self.dark_mode_action.setChecked(current_theme() == "dark")
-        self.dark_mode_action.triggered.connect(lambda enabled: self.set_theme("dark" if enabled else "light"))
-        self.settings_button.clicked.connect(lambda: self.settings_menu.popup(
-            self.settings_button.mapToGlobal(self.settings_button.rect().bottomLeft())))
+        self.settings_button.clicked.connect(self.show_settings)
         layout.addWidget(self.settings_button)
         return header
 
     def set_theme(self, theme, *, persist=True):
         apply_theme(self, theme, persist=persist)
-        self.dark_mode_action.setChecked(current_theme() == "dark")
+
+    def show_settings(self):
+        if self._settings_dialog is not None:
+            self._settings_dialog.raise_()
+            self._settings_dialog.activateWindow()
+            return
+        self._settings_dialog = SettingsDialog(self)
+        self._settings_dialog.finished.connect(self._settings_finished)
+        self._settings_dialog.open()
+
+    def _settings_finished(self, code):
+        dialog = self._settings_dialog
+        self._settings_dialog = None
+        if dialog is None:
+            return
+        if code == QDialog.DialogCode.Accepted and dialog.saved_preferences is not None:
+            self.set_theme(dialog.saved_preferences.theme, persist=False)
+            if self.video_info is None and self._thread is None:
+                self.threshold_slider.setValue(dialog.saved_preferences.confidence_percent)
+        dialog.deleteLater()
 
     def _body(self):
         splitter = DetectionPageShell("mainSplitter")
@@ -1519,8 +1536,8 @@ class MainWindow(QMainWindow):
         threshold_row = QHBoxLayout()
         self.threshold_slider = QSlider(Qt.Orientation.Horizontal)
         self.threshold_slider.setRange(10, 95)
-        self.threshold_slider.setValue(50)
-        self.threshold_value = QLabel("50%")
+        self.threshold_slider.setValue(load_preferences().confidence_percent)
+        self.threshold_value = QLabel(f"{self.threshold_slider.value()}%")
         self.threshold_value.setObjectName("thresholdValue")
         self.threshold_slider.valueChanged.connect(
             lambda value: self.threshold_value.setText(f"{value}%")
@@ -1708,6 +1725,7 @@ class MainWindow(QMainWindow):
         self.open_review_button.setEnabled(True)
         self.threshold_slider.setEnabled(True)
         self.progress.hide()
+        self.threshold_slider.setValue(load_preferences().confidence_percent)
         self.progress.setRange(0, 100)
         self.progress.setValue(0)
         self.enhancement_status.setText("Import a video to enhance it.")
@@ -1994,7 +2012,8 @@ class MainWindow(QMainWindow):
         try:
             self.player.open(result.output_path)
             self.player.set_locked(False)
-            self.player.play()
+            if load_preferences().autoplay_results:
+                self.player.play()
             self.workspace_meta.setText("Annotated video")
         except ValueError as exc:
             self._show_error("Playback unavailable", str(exc))
@@ -2136,7 +2155,7 @@ class MainWindow(QMainWindow):
         if not self.result:
             return
         destination = QFileDialog.getExistingDirectory(
-            self, "Choose where to save the video and forensic report", str(Path.home())
+            self, "Choose where to save the video and forensic report", export_start_directory()
         )
         if not destination:
             return

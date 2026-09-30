@@ -6,7 +6,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from PySide6.QtCore import QPoint
+from PySide6.QtCore import QPoint, QSettings
 from PySide6.QtTest import QTest
 from PySide6.QtWidgets import QApplication, QLabel
 
@@ -24,6 +24,10 @@ class AppearanceTests(unittest.TestCase):
         self.temp = tempfile.TemporaryDirectory(dir=Path(__file__).parent / "temp")
         self.addCleanup(self.temp.cleanup)
         folder = Path(self.temp.name)
+        self.settings = QSettings(str(folder / "preferences.ini"), QSettings.Format.IniFormat)
+        patcher = patch("mockup_ui.preferences.settings_store", return_value=self.settings)
+        patcher.start()
+        self.addCleanup(patcher.stop)
         self.videos = [make_video(folder / f"CAM{i}.mp4", f"CAMERA {i}") for i in (1, 2)]
         self.window = MainWindow()
         self.window.set_theme("light", persist=False)
@@ -57,19 +61,24 @@ class AppearanceTests(unittest.TestCase):
                 for snapshot in snapshots[1:]:
                     self.assertEqual(snapshot, snapshots[0])
 
-    def test_settings_preserve_camera_state_and_persist_only_appearance(self):
+    def test_settings_preserve_camera_state_and_save_defaults(self):
         multi = self.window._multi_camera_window
         multi.scene.setText("Incident 004")
         multi.seek.setValue(200)
         paths = [card[0].path for card in multi.cards]
         frames = [card[0].frame_number for card in multi.cards]
-        with patch("mockup_ui.ui_theme.QSettings") as settings:
-            self.window.dark_mode_action.trigger()
-            settings.return_value.setValue.assert_called_once_with("appearance/theme", "dark")
+        self.window.show_settings()
+        settings = self.window._settings_dialog
+        settings.theme_combo.setCurrentIndex(settings.theme_combo.findData("dark"))
+        settings.confidence_spin.setValue(75)
+        settings.accept()
+        self.assertEqual(self.settings.value("appearance/theme"), "dark")
+        self.assertEqual(self.settings.value("analysis/default_confidence_percent"), 75)
         self.assertEqual(multi.scene.text(), "Incident 004")
         self.assertEqual(paths, [card[0].path for card in multi.cards])
         self.assertEqual(frames, [card[0].frame_number for card in multi.cards])
-        self.assertTrue(self.window.dark_mode_action.isChecked())
+        self.assertEqual(self.app.property("forensikadaTheme"), "dark")
+        self.assertEqual(multi.threshold, 50)
         dialog = DetectionConfigDialog(self.videos[0], 74, self.window)
         self.addCleanup(dialog.close)
         self.assertIn("#232c35", dialog.styleSheet())

@@ -19,6 +19,7 @@ from mockup_ui.review_panel import ObservationReviewDialog
 from mockup_ui.video_player import VideoPlayer
 from mockup_ui.page_shell import DetectionPageShell, page_panel, workspace_heading, summary_metrics, enhancement_heading
 from mockup_ui.ui_theme import load_stylesheet
+from mockup_ui.preferences import load_preferences, export_start_directory
 
 VIDEO_FILTER = "Videos (*.mp4 *.avi *.mov *.mkv *.webm *.m4v)"
 
@@ -258,7 +259,7 @@ class MultiCameraDialog(QWidget):
         self.bridge = ModelBridge()
         if parent and hasattr(parent, "bridge"):
             self.bridge.set_model_path(parent.bridge.model_path)
-        self.threshold = 50
+        self.threshold = load_preferences().confidence_percent
         self.worker = None
         self._processing_dialog = None
         self.play_timer = QTimer(self)
@@ -749,7 +750,7 @@ class MultiCameraDialog(QWidget):
         self.seek.setEnabled(True)
         self.progress_bar.hide()
         self.state_changed.emit()
-        if self.results:
+        if self.results and load_preferences().autoplay_results:
             self.toggle_playback()
 
     def _close_processing_dialog(self):
@@ -852,7 +853,7 @@ class MultiCameraDialog(QWidget):
         self.pause()
         if not self.results or self.worker:
             return
-        destination = QFileDialog.getExistingDirectory(self, "Save videos and forensic reports")
+        destination = QFileDialog.getExistingDirectory(self, "Save videos and forensic reports", export_start_directory())
         if not destination:
             return
         try:
