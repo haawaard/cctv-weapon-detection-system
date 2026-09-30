@@ -147,15 +147,24 @@ class MultiCameraUiTests(unittest.TestCase):
         self.assertEqual(manifest["observations"][0]["analyst_decision"], "Reject")
         self.assertEqual(len(manifest["cameras"]), 2)
         self.assertTrue((exported / "forensic_report.pdf").is_file())
-        self.assertEqual(set(exported.rglob("*.pdf")), {exported / "forensic_report.pdf"})
+        self.assertEqual(set(exported.rglob("*.pdf")), {
+            exported / "forensic_report.pdf",
+            *(exported / camera["export_folder"] / "forensic_report.pdf" for camera in manifest["cameras"]),
+        })
         document = QPdfDocument(self.app)
         self.assertEqual(document.load(str(exported / "forensic_report.pdf")), QPdfDocument.Error.None_)
-        self.assertGreater(document.pagePointSize(0).height(), document.pagePointSize(0).width())
+        self.assertGreater(document.pagePointSize(0).width(), document.pagePointSize(0).height())
         report_text = "\n".join(document.getAllText(page).text() for page in range(document.pageCount()))
         for expected in ("Forensic Detection Report", "Video Metadata", "CAM-01", "CAM-02",
                          "Object Detection Observations and Reviews", "Model Performance Metrics",
-                         "Analyst Review Information", "Source References", "Traceability Report"):
+                         "Analyst Review Information", "Source References and Traceability",
+                         "Session time", "Cross-view"):
             self.assertIn(expected, report_text)
+        headings = ("Video Metadata", "Video and Detection Information", "Interpretation",
+                    "Model Performance Metrics", "Object Detection Observations and Reviews",
+                    "Analyst Review Information", "Source References and Traceability")
+        positions = [report_text.index(heading) for heading in headings]
+        self.assertEqual(positions, sorted(positions))
         self.assertNotIn("TCR Information", report_text)
         self.assertNotIn("MCCR Information", report_text)
         document.close()
@@ -168,6 +177,16 @@ class MultiCameraUiTests(unittest.TestCase):
             self.assertTrue((camera_folder / "annotated.mp4").is_file())
             self.assertTrue((camera_folder / "forensic_report.json").is_file())
             self.assertTrue((camera_folder / "forensic_records.csv").is_file())
+            individual = QPdfDocument(self.app)
+            self.assertEqual(individual.load(str(camera_folder / "forensic_report.pdf")), QPdfDocument.Error.None_)
+            self.assertGreater(individual.pagePointSize(0).height(), individual.pagePointSize(0).width())
+            text = "\n".join(individual.getAllText(page).text() for page in range(individual.pageCount()))
+            self.assertIn(camera["camera_id"], text)
+            self.assertIn("Temporal Consistency Rate (TCR)", text)
+            self.assertNotIn("MCCR", text)
+            self.assertNotIn("Cross-camera", text)
+            individual.close()
+            individual.deleteLater()
         self.window.configure()
         self.assertEqual(self.window.results, [])
         self.assertTrue(self.window.setup.isEnabled())

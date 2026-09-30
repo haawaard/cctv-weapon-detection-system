@@ -74,11 +74,15 @@ and the forensic report.
    timeline row seeks all views to that session time. A view outside its recording
    interval displays a placeholder rather than a stale frame.
 6. The shared **Forensic report** button opens one report with every camera's
-   details and the combined session timeline. **Save video + report** writes exactly
-   one multi-camera PDF, `session.json`, `combined_observations.csv`, and
-   an annotated video with HTML/JSON/CSV/review records for each camera. The combined
-   session's MCCR, alignment information, matching observation IDs and analyst
-   decisions are preserved in its PDF and structured records.
+   details and the combined session timeline. **Save video + report** writes
+   a landscape multi-camera PDF, `session.json`, `combined_observations.csv`, and
+   an individual portrait PDF plus an annotated video with HTML/JSON/CSV/review records
+   for each camera. Individual PDFs include TCR and omit cross-camera content and MCCR.
+   The combined PDF places metrics before a chronological observation table with
+   repeated column headers, followed by analyst reviews and source traceability.
+   The session's MCCR, alignment information and analyst decisions are preserved
+   in its PDF and structured records. Matching observation IDs and detailed
+   corroboration reasons are available in `session.json` and `combined_observations.csv`.
 
 The manuscript's printed pages 70-72 (PDF pages 75-77) require same-incident
 correspondence, different camera IDs, class agreement and a predefined alignment

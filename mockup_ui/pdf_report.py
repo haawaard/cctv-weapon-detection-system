@@ -6,7 +6,7 @@ from xml.sax.saxutils import escape
 from mockup_ui.report_metrics import REPORT_DISCLAIMER as DISCLAIMER, metric_fields
 
 
-def write_pdf(report, path):
+def write_pdf(report, path, *, camera_id=None):
     from reportlab.lib import colors
     from reportlab.lib.enums import TA_LEFT
     from reportlab.lib.pagesizes import A4
@@ -108,7 +108,7 @@ def write_pdf(report, path):
             pair("Frame rate", f"{source['fps']:g} FPS"),
             pair("Duration", f"{source['duration_seconds']:.3f} seconds"),
             pair("Source frame count", source["frame_count"]),
-            pair("Camera identifier", source["camera_id"]),
+            pair("Camera identifier", camera_id or source["camera_id"]),
             pair("Recording date/time", source["recording_start_timestamp"]),
         ]),
         section("Video and Detection Information"),
@@ -155,7 +155,6 @@ def write_pdf(report, path):
     story.extend([
         section("Model Performance Metrics"),
         field_table([pair(label, value) for label, value in metric_fields(report.get("metrics", {}), "tcr")]),
-        field_table([pair(label, value) for label, value in metric_fields(report.get("metrics", {}), "mccr")]),
         section("Analyst Review Information"),
         field_table([
             pair("Review coverage", report["review_summary"]),
@@ -203,6 +202,8 @@ def write_pdf(report, path):
         Spacer(1, 5),
         p(report["definitions"]["fingerprints"]),
     ])
+    if report.get("reconstruction_note"):
+        story.append(p(report["reconstruction_note"]))
 
     def footer(canvas, doc):
         canvas.saveState()

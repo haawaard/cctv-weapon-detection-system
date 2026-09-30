@@ -1,0 +1,135 @@
+{
+  "report_id": "FR-CAM-01-20260930T064218Z",
+  "generated_at_utc": "2026-09-30T06:42:18+00:00",
+  "reconstruction_note": "Reformatted from the camera records printed in combined_forensic_detection_report.pdf (original generation: 2026-09-20T13:39:16.252142+00:00). The original export folder is unavailable. Printed values retain their original displayed precision. Source references and fingerprints are historical values copied from that report; source files and hashes have not been revalidated.",
+  "source": {
+    "name": "CAM1_SCENE001.mov",
+    "reference": "E:\\samplecctvvideos\\CAM1_SCENE001.mov",
+    "width": 1280,
+    "height": 720,
+    "fps": 15.0,
+    "duration_seconds": 9.0,
+    "frame_count": 135,
+    "camera_id": "CAM-01",
+    "recording_start_timestamp": null,
+    "file_at_report_generation": {
+      "sha256": "1bf66047940329ed8ce344229f8470dbedbdd14b17957754c4b548f52bd7d29a",
+      "status": "fingerprinted_at_report_generation"
+    }
+  },
+  "processing": {
+    "model_reference": "C:\\Users\\howar\\Documents\\GitHub\\cctv-weapon-detection-system\\mockup_ui\\models\\best_weapon_detector_ninth_model.pth",
+    "confidence_threshold": 0.8,
+    "analyzed_frames": 135,
+    "device": "cpu",
+    "elapsed_seconds": 487.6,
+    "completed_at_utc": "2026-09-20T13:30:33+00:00"
+  },
+  "summary": {
+    "total_frame_detections": 4,
+    "frames_with_detections": 4,
+    "counts_per_class": {
+      "knife": 4
+    }
+  },
+  "review_summary": "0 of 4 observations reviewed",
+  "counts_by_analyst_decision": {
+    "Not reviewed": 4
+  },
+  "detections": [
+    {
+      "observation_id": "fc3586cf82974f999e7d64d6866add0f-OBS-00001",
+      "object_label": "knife",
+      "frame_number": 90,
+      "video_relative_timestamp_seconds": 6.0,
+      "confidence_score": 0.996,
+      "x1": 747,
+      "y1": 637,
+      "x2": 898,
+      "y2": 701,
+      "analyst_decision": null,
+      "analyst_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "observation_id": "fc3586cf82974f999e7d64d6866add0f-OBS-00002",
+      "object_label": "knife",
+      "frame_number": 91,
+      "video_relative_timestamp_seconds": 6.07,
+      "confidence_score": 0.9978,
+      "x1": 742,
+      "y1": 642,
+      "x2": 892,
+      "y2": 709,
+      "analyst_decision": null,
+      "analyst_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "observation_id": "fc3586cf82974f999e7d64d6866add0f-OBS-00003",
+      "object_label": "knife",
+      "frame_number": 92,
+      "video_relative_timestamp_seconds": 6.13,
+      "confidence_score": 0.9882,
+      "x1": 725,
+      "y1": 646,
+      "x2": 871,
+      "y2": 719,
+      "analyst_decision": null,
+      "analyst_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "observation_id": "fc3586cf82974f999e7d64d6866add0f-OBS-00004",
+      "object_label": "knife",
+      "frame_number": 93,
+      "video_relative_timestamp_seconds": 6.2,
+      "confidence_score": 0.7367,
+      "x1": 216,
+      "y1": 0,
+      "x2": 860,
+      "y2": 368,
+      "analyst_decision": null,
+      "analyst_notes": "",
+      "reviewed_at": null
+    }
+  ],
+  "metrics": {
+    "tcr": {
+      "status": "computed",
+      "value_percent": 100.0,
+      "reason": "Calculated from saved pipeline statuses.",
+      "n_ts": 3,
+      "n_isolated": 0,
+      "n_interrupted": 0,
+      "n_not_evaluable": 2,
+      "n_te": 3
+    }
+  },
+  "artifacts": {
+    "annotated_video": "C:\\Users\\howar\\Desktop\\Test Report\\camera-session-20260920-213916-db67ae3e\\CAM1_SCENE001_20260920_213916_2a6a33e1\\annotated.mp4",
+    "saved_summary": {
+      "path": "C:\\Users\\howar\\Desktop\\Test Report\\camera-session-20260920-213916-db67ae3e\\CAM1_SCENE001_20260920_213916_2a6a33e1\\summary.json",
+      "sha256": "eeaf5cef72dd761f8cfa8f1595418bbac62aa50495a5b1eec62a041839b33230",
+      "status": "fingerprinted_at_report_generation"
+    },
+    "pipeline_detections": {
+      "path": "C:\\Users\\howar\\Desktop\\Test Report\\camera-session-20260920-213916-db67ae3e\\CAM1_SCENE001_20260920_213916_2a6a33e1\\detections.csv",
+      "sha256": "e184ae9847e04bf576b2262b3edccaa85735578c87eb0d169bf4d70b30d838a8",
+      "status": "fingerprinted_at_report_generation"
+    },
+    "metric_input": {
+      "path": "C:\\Users\\howar\\Desktop\\Test Report\\camera-session-20260920-213916-db67ae3e\\CAM1_SCENE001_20260920_213916_2a6a33e1\\metric_input.csv",
+      "sha256": "e2029ac93bf551f45c163cd7127705045bc80f4bee2f51b8e8fb337acec11ffb",
+      "status": "fingerprinted_at_report_generation"
+    },
+    "metric_engine": {
+      "path": "C:\\Users\\howar\\Documents\\GitHub\\cctv-weapon-detection-system\\benchmarks\\calculate_tcr_and_mccr.py",
+      "sha256": "f5124a898945b9d6e3e0ef4b6145a555bcac45faee5b4e92808db933c9539e62",
+      "status": "historical_fingerprint_from_original_report"
+    }
+  },
+  "definitions": {
+    "fingerprints": "SHA-256 values below are historical fingerprints from the original report; no new file verification or chain-of-custody history is asserted."
+  }
+}

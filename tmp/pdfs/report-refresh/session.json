@@ -1,0 +1,493 @@
+{
+  "generated_at_utc": "2026-09-30T06:42:18+00:00",
+  "scene_id": "",
+  "alignment_confirmed_by_analyst": false,
+  "alignment_method": "",
+  "matching_window_seconds": 1.5,
+  "metrics": {
+    "counts": {
+      "Not Applicable": 58
+    },
+    "eligible": 0,
+    "mccr_percent": null
+  },
+  "cameras": [
+    {
+      "camera_id": "CAM-01",
+      "export_folder": "C:\\Users\\howar\\Documents\\GitHub\\cctv-weapon-detection-system\\tmp\\pdfs\\report-refresh\\CAM-01",
+      "offset_seconds": null
+    },
+    {
+      "camera_id": "CAM-02",
+      "export_folder": "C:\\Users\\howar\\Documents\\GitHub\\cctv-weapon-detection-system\\tmp\\pdfs\\report-refresh\\CAM-02",
+      "offset_seconds": null
+    }
+  ],
+  "observations": [
+    {
+      "observation_id": "fc3586cf82974f999e7d64d6866add0f-OBS-00001",
+      "camera_id": "CAM-01",
+      "session_seconds": null,
+      "corroboration_status": "Not Applicable",
+      "reason": "Recording correspondence and alignment have not been confirmed.",
+      "supporting_observations": []
+    },
+    {
+      "observation_id": "fc3586cf82974f999e7d64d6866add0f-OBS-00002",
+      "camera_id": "CAM-01",
+      "session_seconds": null,
+      "corroboration_status": "Not Applicable",
+      "reason": "Recording correspondence and alignment have not been confirmed.",
+      "supporting_observations": []
+    },
+    {
+      "observation_id": "fc3586cf82974f999e7d64d6866add0f-OBS-00003",
+      "camera_id": "CAM-01",
+      "session_seconds": null,
+      "corroboration_status": "Not Applicable",
+      "reason": "Recording correspondence and alignment have not been confirmed.",
+      "supporting_observations": []
+    },
+    {
+      "observation_id": "fc3586cf82974f999e7d64d6866add0f-OBS-00004",
+      "camera_id": "CAM-01",
+      "session_seconds": null,
+      "corroboration_status": "Not Applicable",
+      "reason": "Recording correspondence and alignment have not been confirmed.",
+      "supporting_observations": []
+    },
+    {
+      "observation_id": "088826860098414bafd9dd8b9cd4dc67-OBS-00001",
+      "camera_id": "CAM-02",
+      "session_seconds": null,
+      "corroboration_status": "Not Applicable",
+      "reason": "Recording correspondence and alignment have not been confirmed.",
+      "supporting_observations": []
+    },
+    {
+      "observation_id": "088826860098414bafd9dd8b9cd4dc67-OBS-00002",
+      "camera_id": "CAM-02",
+      "session_seconds": null,
+      "corroboration_status": "Not Applicable",
+      "reason": "Recording correspondence and alignment have not been confirmed.",
+      "supporting_observations": []
+    },
+    {
+      "observation_id": "088826860098414bafd9dd8b9cd4dc67-OBS-00003",
+      "camera_id": "CAM-02",
+      "session_seconds": null,
+      "corroboration_status": "Not Applicable",
+      "reason": "Recording correspondence and alignment have not been confirmed.",
+      "supporting_observations": []
+    },
+    {
+      "observation_id": "088826860098414bafd9dd8b9cd4dc67-OBS-00004",
+      "camera_id": "CAM-02",
+      "session_seconds": null,
+      "corroboration_status": "Not Applicable",
+      "reason": "Recording correspondence and alignment have not been confirmed.",
+      "supporting_observations": []
+    },
+    {
+      "observation_id": "088826860098414bafd9dd8b9cd4dc67-OBS-00005",
+      "camera_id": "CAM-02",
+      "session_seconds": null,
+      "corroboration_status": "Not Applicable",
+      "reason": "Recording correspondence and alignment have not been confirmed.",
+      "supporting_observations": []
+    },
+    {
+      "observation_id": "088826860098414bafd9dd8b9cd4dc67-OBS-00006",
+      "camera_id": "CAM-02",
+      "session_seconds": null,
+      "corroboration_status": "Not Applicable",
+      "reason": "Recording correspondence and alignment have not been confirmed.",
+      "supporting_observations": []
+    },
+    {
+      "observation_id": "088826860098414bafd9dd8b9cd4dc67-OBS-00007",
+      "camera_id": "CAM-02",
+      "session_seconds": null,
+      "corroboration_status": "Not Applicable",
+      "reason": "Recording correspondence and alignment have not been confirmed.",
+      "supporting_observations": []
+    },
+    {
+      "observation_id": "088826860098414bafd9dd8b9cd4dc67-OBS-00008",
+      "camera_id": "CAM-02",
+      "session_seconds": null,
+      "corroboration_status": "Not Applicable",
+      "reason": "Recording correspondence and alignment have not been confirmed.",
+      "supporting_observations": []
+    },
+    {
+      "observation_id": "088826860098414bafd9dd8b9cd4dc67-OBS-00009",
+      "camera_id": "CAM-02",
+      "session_seconds": null,
+      "corroboration_status": "Not Applicable",
+      "reason": "Recording correspondence and alignment have not been confirmed.",
+      "supporting_observations": []
+    },
+    {
+      "observation_id": "088826860098414bafd9dd8b9cd4dc67-OBS-00010",
+      "camera_id": "CAM-02",
+      "session_seconds": null,
+      "corroboration_status": "Not Applicable",
+      "reason": "Recording correspondence and alignment have not been confirmed.",
+      "supporting_observations": []
+    },
+    {
+      "observation_id": "088826860098414bafd9dd8b9cd4dc67-OBS-00011",
+      "camera_id": "CAM-02",
+      "session_seconds": null,
+      "corroboration_status": "Not Applicable",
+      "reason": "Recording correspondence and alignment have not been confirmed.",
+      "supporting_observations": []
+    },
+    {
+      "observation_id": "088826860098414bafd9dd8b9cd4dc67-OBS-00012",
+      "camera_id": "CAM-02",
+      "session_seconds": null,
+      "corroboration_status": "Not Applicable",
+      "reason": "Recording correspondence and alignment have not been confirmed.",
+      "supporting_observations": []
+    },
+    {
+      "observation_id": "088826860098414bafd9dd8b9cd4dc67-OBS-00013",
+      "camera_id": "CAM-02",
+      "session_seconds": null,
+      "corroboration_status": "Not Applicable",
+      "reason": "Recording correspondence and alignment have not been confirmed.",
+      "supporting_observations": []
+    },
+    {
+      "observation_id": "088826860098414bafd9dd8b9cd4dc67-OBS-00014",
+      "camera_id": "CAM-02",
+      "session_seconds": null,
+      "corroboration_status": "Not Applicable",
+      "reason": "Recording correspondence and alignment have not been confirmed.",
+      "supporting_observations": []
+    },
+    {
+      "observation_id": "088826860098414bafd9dd8b9cd4dc67-OBS-00015",
+      "camera_id": "CAM-02",
+      "session_seconds": null,
+      "corroboration_status": "Not Applicable",
+      "reason": "Recording correspondence and alignment have not been confirmed.",
+      "supporting_observations": []
+    },
+    {
+      "observation_id": "088826860098414bafd9dd8b9cd4dc67-OBS-00016",
+      "camera_id": "CAM-02",
+      "session_seconds": null,
+      "corroboration_status": "Not Applicable",
+      "reason": "Recording correspondence and alignment have not been confirmed.",
+      "supporting_observations": []
+    },
+    {
+      "observation_id": "088826860098414bafd9dd8b9cd4dc67-OBS-00017",
+      "camera_id": "CAM-02",
+      "session_seconds": null,
+      "corroboration_status": "Not Applicable",
+      "reason": "Recording correspondence and alignment have not been confirmed.",
+      "supporting_observations": []
+    },
+    {
+      "observation_id": "088826860098414bafd9dd8b9cd4dc67-OBS-00018",
+      "camera_id": "CAM-02",
+      "session_seconds": null,
+      "corroboration_status": "Not Applicable",
+      "reason": "Recording correspondence and alignment have not been confirmed.",
+      "supporting_observations": []
+    },
+    {
+      "observation_id": "088826860098414bafd9dd8b9cd4dc67-OBS-00019",
+      "camera_id": "CAM-02",
+      "session_seconds": null,
+      "corroboration_status": "Not Applicable",
+      "reason": "Recording correspondence and alignment have not been confirmed.",
+      "supporting_observations": []
+    },
+    {
+      "observation_id": "088826860098414bafd9dd8b9cd4dc67-OBS-00020",
+      "camera_id": "CAM-02",
+      "session_seconds": null,
+      "corroboration_status": "Not Applicable",
+      "reason": "Recording correspondence and alignment have not been confirmed.",
+      "supporting_observations": []
+    },
+    {
+      "observation_id": "088826860098414bafd9dd8b9cd4dc67-OBS-00021",
+      "camera_id": "CAM-02",
+      "session_seconds": null,
+      "corroboration_status": "Not Applicable",
+      "reason": "Recording correspondence and alignment have not been confirmed.",
+      "supporting_observations": []
+    },
+    {
+      "observation_id": "088826860098414bafd9dd8b9cd4dc67-OBS-00022",
+      "camera_id": "CAM-02",
+      "session_seconds": null,
+      "corroboration_status": "Not Applicable",
+      "reason": "Recording correspondence and alignment have not been confirmed.",
+      "supporting_observations": []
+    },
+    {
+      "observation_id": "088826860098414bafd9dd8b9cd4dc67-OBS-00023",
+      "camera_id": "CAM-02",
+      "session_seconds": null,
+      "corroboration_status": "Not Applicable",
+      "reason": "Recording correspondence and alignment have not been confirmed.",
+      "supporting_observations": []
+    },
+    {
+      "observation_id": "088826860098414bafd9dd8b9cd4dc67-OBS-00024",
+      "camera_id": "CAM-02",
+      "session_seconds": null,
+      "corroboration_status": "Not Applicable",
+      "reason": "Recording correspondence and alignment have not been confirmed.",
+      "supporting_observations": []
+    },
+    {
+      "observation_id": "088826860098414bafd9dd8b9cd4dc67-OBS-00025",
+      "camera_id": "CAM-02",
+      "session_seconds": null,
+      "corroboration_status": "Not Applicable",
+      "reason": "Recording correspondence and alignment have not been confirmed.",
+      "supporting_observations": []
+    },
+    {
+      "observation_id": "088826860098414bafd9dd8b9cd4dc67-OBS-00026",
+      "camera_id": "CAM-02",
+      "session_seconds": null,
+      "corroboration_status": "Not Applicable",
+      "reason": "Recording correspondence and alignment have not been confirmed.",
+      "supporting_observations": []
+    },
+    {
+      "observation_id": "088826860098414bafd9dd8b9cd4dc67-OBS-00027",
+      "camera_id": "CAM-02",
+      "session_seconds": null,
+      "corroboration_status": "Not Applicable",
+      "reason": "Recording correspondence and alignment have not been confirmed.",
+      "supporting_observations": []
+    },
+    {
+      "observation_id": "088826860098414bafd9dd8b9cd4dc67-OBS-00028",
+      "camera_id": "CAM-02",
+      "session_seconds": null,
+      "corroboration_status": "Not Applicable",
+      "reason": "Recording correspondence and alignment have not been confirmed.",
+      "supporting_observations": []
+    },
+    {
+      "observation_id": "088826860098414bafd9dd8b9cd4dc67-OBS-00029",
+      "camera_id": "CAM-02",
+      "session_seconds": null,
+      "corroboration_status": "Not Applicable",
+      "reason": "Recording correspondence and alignment have not been confirmed.",
+      "supporting_observations": []
+    },
+    {
+      "observation_id": "088826860098414bafd9dd8b9cd4dc67-OBS-00030",
+      "camera_id": "CAM-02",
+      "session_seconds": null,
+      "corroboration_status": "Not Applicable",
+      "reason": "Recording correspondence and alignment have not been confirmed.",
+      "supporting_observations": []
+    },
+    {
+      "observation_id": "088826860098414bafd9dd8b9cd4dc67-OBS-00031",
+      "camera_id": "CAM-02",
+      "session_seconds": null,
+      "corroboration_status": "Not Applicable",
+      "reason": "Recording correspondence and alignment have not been confirmed.",
+      "supporting_observations": []
+    },
+    {
+      "observation_id": "088826860098414bafd9dd8b9cd4dc67-OBS-00032",
+      "camera_id": "CAM-02",
+      "session_seconds": null,
+      "corroboration_status": "Not Applicable",
+      "reason": "Recording correspondence and alignment have not been confirmed.",
+      "supporting_observations": []
+    },
+    {
+      "observation_id": "088826860098414bafd9dd8b9cd4dc67-OBS-00033",
+      "camera_id": "CAM-02",
+      "session_seconds": null,
+      "corroboration_status": "Not Applicable",
+      "reason": "Recording correspondence and alignment have not been confirmed.",
+      "supporting_observations": []
+    },
+    {
+      "observation_id": "088826860098414bafd9dd8b9cd4dc67-OBS-00034",
+      "camera_id": "CAM-02",
+      "session_seconds": null,
+      "corroboration_status": "Not Applicable",
+      "reason": "Recording correspondence and alignment have not been confirmed.",
+      "supporting_observations": []
+    },
+    {
+      "observation_id": "088826860098414bafd9dd8b9cd4dc67-OBS-00035",
+      "camera_id": "CAM-02",
+      "session_seconds": null,
+      "corroboration_status": "Not Applicable",
+      "reason": "Recording correspondence and alignment have not been confirmed.",
+      "supporting_observations": []
+    },
+    {
+      "observation_id": "088826860098414bafd9dd8b9cd4dc67-OBS-00036",
+      "camera_id": "CAM-02",
+      "session_seconds": null,
+      "corroboration_status": "Not Applicable",
+      "reason": "Recording correspondence and alignment have not been confirmed.",
+      "supporting_observations": []
+    },
+    {
+      "observation_id": "088826860098414bafd9dd8b9cd4dc67-OBS-00037",
+      "camera_id": "CAM-02",
+      "session_seconds": null,
+      "corroboration_status": "Not Applicable",
+      "reason": "Recording correspondence and alignment have not been confirmed.",
+      "supporting_observations": []
+    },
+    {
+      "observation_id": "088826860098414bafd9dd8b9cd4dc67-OBS-00038",
+      "camera_id": "CAM-02",
+      "session_seconds": null,
+      "corroboration_status": "Not Applicable",
+      "reason": "Recording correspondence and alignment have not been confirmed.",
+      "supporting_observations": []
+    },
+    {
+      "observation_id": "088826860098414bafd9dd8b9cd4dc67-OBS-00039",
+      "camera_id": "CAM-02",
+      "session_seconds": null,
+      "corroboration_status": "Not Applicable",
+      "reason": "Recording correspondence and alignment have not been confirmed.",
+      "supporting_observations": []
+    },
+    {
+      "observation_id": "088826860098414bafd9dd8b9cd4dc67-OBS-00040",
+      "camera_id": "CAM-02",
+      "session_seconds": null,
+      "corroboration_status": "Not Applicable",
+      "reason": "Recording correspondence and alignment have not been confirmed.",
+      "supporting_observations": []
+    },
+    {
+      "observation_id": "088826860098414bafd9dd8b9cd4dc67-OBS-00041",
+      "camera_id": "CAM-02",
+      "session_seconds": null,
+      "corroboration_status": "Not Applicable",
+      "reason": "Recording correspondence and alignment have not been confirmed.",
+      "supporting_observations": []
+    },
+    {
+      "observation_id": "088826860098414bafd9dd8b9cd4dc67-OBS-00042",
+      "camera_id": "CAM-02",
+      "session_seconds": null,
+      "corroboration_status": "Not Applicable",
+      "reason": "Recording correspondence and alignment have not been confirmed.",
+      "supporting_observations": []
+    },
+    {
+      "observation_id": "088826860098414bafd9dd8b9cd4dc67-OBS-00043",
+      "camera_id": "CAM-02",
+      "session_seconds": null,
+      "corroboration_status": "Not Applicable",
+      "reason": "Recording correspondence and alignment have not been confirmed.",
+      "supporting_observations": []
+    },
+    {
+      "observation_id": "088826860098414bafd9dd8b9cd4dc67-OBS-00044",
+      "camera_id": "CAM-02",
+      "session_seconds": null,
+      "corroboration_status": "Not Applicable",
+      "reason": "Recording correspondence and alignment have not been confirmed.",
+      "supporting_observations": []
+    },
+    {
+      "observation_id": "088826860098414bafd9dd8b9cd4dc67-OBS-00045",
+      "camera_id": "CAM-02",
+      "session_seconds": null,
+      "corroboration_status": "Not Applicable",
+      "reason": "Recording correspondence and alignment have not been confirmed.",
+      "supporting_observations": []
+    },
+    {
+      "observation_id": "088826860098414bafd9dd8b9cd4dc67-OBS-00046",
+      "camera_id": "CAM-02",
+      "session_seconds": null,
+      "corroboration_status": "Not Applicable",
+      "reason": "Recording correspondence and alignment have not been confirmed.",
+      "supporting_observations": []
+    },
+    {
+      "observation_id": "088826860098414bafd9dd8b9cd4dc67-OBS-00047",
+      "camera_id": "CAM-02",
+      "session_seconds": null,
+      "corroboration_status": "Not Applicable",
+      "reason": "Recording correspondence and alignment have not been confirmed.",
+      "supporting_observations": []
+    },
+    {
+      "observation_id": "088826860098414bafd9dd8b9cd4dc67-OBS-00048",
+      "camera_id": "CAM-02",
+      "session_seconds": null,
+      "corroboration_status": "Not Applicable",
+      "reason": "Recording correspondence and alignment have not been confirmed.",
+      "supporting_observations": []
+    },
+    {
+      "observation_id": "088826860098414bafd9dd8b9cd4dc67-OBS-00049",
+      "camera_id": "CAM-02",
+      "session_seconds": null,
+      "corroboration_status": "Not Applicable",
+      "reason": "Recording correspondence and alignment have not been confirmed.",
+      "supporting_observations": []
+    },
+    {
+      "observation_id": "088826860098414bafd9dd8b9cd4dc67-OBS-00050",
+      "camera_id": "CAM-02",
+      "session_seconds": null,
+      "corroboration_status": "Not Applicable",
+      "reason": "Recording correspondence and alignment have not been confirmed.",
+      "supporting_observations": []
+    },
+    {
+      "observation_id": "088826860098414bafd9dd8b9cd4dc67-OBS-00051",
+      "camera_id": "CAM-02",
+      "session_seconds": null,
+      "corroboration_status": "Not Applicable",
+      "reason": "Recording correspondence and alignment have not been confirmed.",
+      "supporting_observations": []
+    },
+    {
+      "observation_id": "088826860098414bafd9dd8b9cd4dc67-OBS-00052",
+      "camera_id": "CAM-02",
+      "session_seconds": null,
+      "corroboration_status": "Not Applicable",
+      "reason": "Recording correspondence and alignment have not been confirmed.",
+      "supporting_observations": []
+    },
+    {
+      "observation_id": "088826860098414bafd9dd8b9cd4dc67-OBS-00053",
+      "camera_id": "CAM-02",
+      "session_seconds": null,
+      "corroboration_status": "Not Applicable",
+      "reason": "Recording correspondence and alignment have not been confirmed.",
+      "supporting_observations": []
+    },
+    {
+      "observation_id": "088826860098414bafd9dd8b9cd4dc67-OBS-00054",
+      "camera_id": "CAM-02",
+      "session_seconds": null,
+      "corroboration_status": "Not Applicable",
+      "reason": "Recording correspondence and alignment have not been confirmed.",
+      "supporting_observations": []
+    }
+  ],
+  "reconstruction_note": "Reformatted from combined_forensic_detection_report.pdf (original generation: 2026-09-20T13:39:16.252142+00:00). The original export folder is unavailable. Printed observations, metrics, source references and historical fingerprints are preserved at their original displayed precision; source files and hashes have not been revalidated. Session offsets were not printed and session times are therefore shown as Not recorded. Original companion CSV/JSON files are unavailable."
+}

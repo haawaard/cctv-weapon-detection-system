@@ -47,14 +47,14 @@ def _session_mccr(manifest: dict) -> dict:
 
 
 def write_session_pdf(path: Path, manifest: dict) -> None:
-    """Write one portrait A4 report containing every camera and observation."""
+    """Write a landscape A4 report with a chronological observation table."""
     from reportlab.lib import colors
     from reportlab.lib.enums import TA_LEFT
-    from reportlab.lib.pagesizes import A4
+    from reportlab.lib.pagesizes import A4, landscape
     from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
     from reportlab.pdfbase import pdfmetrics
     from reportlab.pdfbase.ttfonts import TTFont
-    from reportlab.platypus import KeepTogether, Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
+    from reportlab.platypus import LongTable, Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
 
     path = Path(path)
     camera_reports = _camera_reports(path, manifest)
@@ -83,6 +83,9 @@ def write_session_pdf(path: Path, manifest: dict) -> None:
                               keepWithNext=True))
     styles.add(ParagraphStyle("Disclaimer", fontName=bold, fontSize=9.5, leading=14,
                               textColor=colors.HexColor("#493614")))
+    styles.add(ParagraphStyle("TableCell", fontName=regular, fontSize=8, leading=11,
+                              splitLongWords=True))
+    styles.add(ParagraphStyle("TableHeader", parent=styles["TableCell"], fontName=bold))
     body = styles["ReportBody"]
 
     def p(value, style=body):
@@ -92,7 +95,26 @@ def write_session_pdf(path: Path, manifest: dict) -> None:
     def pair(label, value):
         return [p(label), p(value)]
 
-    width = A4[0] - 84
+    page_size = landscape(A4)
+    width = page_size[0] - 84
+
+    def record_table(headers, rows, column_widths):
+        table = LongTable(
+            [[p(value, styles["TableHeader"]) for value in headers]] +
+            [[p(value, styles["TableCell"]) for value in row] for row in rows],
+            colWidths=column_widths, repeatRows=1, hAlign="LEFT", splitInRow=1,
+        )
+        table.setStyle(TableStyle([
+            ("VALIGN", (0, 0), (-1, -1), "TOP"),
+            ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#e8e9f4")),
+            ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, colors.HexColor("#f6f7fb")]),
+            ("LINEBELOW", (0, 0), (-1, -1), .35, colors.HexColor("#dce0e8")),
+            ("LEFTPADDING", (0, 0), (-1, -1), 6),
+            ("RIGHTPADDING", (0, 0), (-1, -1), 6),
+            ("TOPPADDING", (0, 0), (-1, -1), 5),
+            ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
+        ]))
+        return table
 
     def field_table(rows):
         table = Table(rows, colWidths=[145, width - 145], hAlign="LEFT")
@@ -179,50 +201,6 @@ def write_session_pdf(path: Path, manifest: dict) -> None:
           "Bounding boxes use [x1, y1, x2, y2] source-frame pixel coordinates. Counts represent frame observations, "
           "so the same physical object may appear more than once."),
     ])
-    observation_section_added = False
-    for camera, report in camera_reports:
-        if not report["detections"]:
-            elements = [
-                camera_heading(camera, report),
-                p("No handgun or knife observations met the configured confidence threshold."),
-            ]
-            if not observation_section_added:
-                elements.insert(0, section("Object Detection Observations and Reviews"))
-                observation_section_added = True
-            story.append(KeepTogether(elements))
-            continue
-        for index, row in enumerate(report["detections"]):
-            session_row = observations_by_id.get(row["observation_id"], {})
-            cross_view_detail = session_row.get("corroboration_status", "Not recorded")
-            supporting = session_row.get("supporting_observations", [])
-            if supporting:
-                cross_view_detail += f"; supporting observations: {', '.join(supporting)}"
-            if session_row.get("reason"):
-                cross_view_detail += f"; {session_row['reason']}"
-            elements = [
-                p(f"Observation {row['observation_id']}", styles["Observation"]),
-                field_table([
-                    pair("Detection", f"{row['object_label'].title()} | Frame {row['frame_number']} | "
-                         f"{row['video_relative_timestamp_seconds']:.2f} seconds"),
-                    pair("Confidence / bounding box", f"{row['confidence_score']:.2%} / "
-                         f"[{row['x1']}, {row['y1']}, {row['x2']}, {row['y2']}]"),
-                    pair("Cross-camera comparison", cross_view_detail),
-                    pair("Analyst Review Decision", row["analyst_decision"] or "Not reviewed"),
-                    pair("Review timestamp (UTC)", row["reviewed_at"]),
-                ]),
-            ]
-            if index == 0:
-                elements.insert(0, camera_heading(camera, report))
-            if not observation_section_added:
-                elements.insert(0, section("Object Detection Observations and Reviews"))
-                observation_section_added = True
-            story.append(KeepTogether(elements))
-    if not observation_section_added:
-        story.extend([
-            section("Object Detection Observations and Reviews"),
-            p("No handgun or knife observations met the configured confidence threshold."),
-        ])
-
     story.append(section("Model Performance Metrics"))
     for camera, report in camera_reports:
         story.extend([
@@ -231,8 +209,43 @@ def write_session_pdf(path: Path, manifest: dict) -> None:
         ])
     story.extend([
         field_table([pair(label, value) for label, value in metric_fields(_session_mccr(manifest), "mccr")]),
-        section("Analyst Review Information"),
+        section("Object Detection Observations and Reviews"),
+        p("Each row is a frame observation. Confidence and cross-view matching remain reviewable. "
+          "Session time is video time plus the camera offset; it is not a recording date/time. "
+          "The CSV and JSON files contain all record identifiers, matching details and source references."),
     ])
+
+    # Join the saved per-camera observations to the session timeline by stable ID.
+    # Never infer session offsets when rebuilding a report from incomplete records.
+    entries = []
+    for camera, report in camera_reports:
+        for row in report["detections"]:
+            session_row = observations_by_id.get(row["observation_id"], {})
+            session_time = session_row.get("session_seconds")
+            if session_time is None and camera.get("offset_seconds") is not None:
+                session_time = row["video_relative_timestamp_seconds"] + camera["offset_seconds"]
+            entries.append((camera, row, session_row, session_time))
+    entries.sort(key=lambda entry: (
+        entry[3] is None, entry[3] if entry[3] is not None else 0,
+        entry[0]["camera_id"], entry[1]["frame_number"], entry[1]["observation_id"],
+    ))
+    if entries:
+        story.append(record_table(
+            ["Session time", "Camera", "Video time", "Frame", "Object", "Confidence",
+             "Box [x1,y1,x2,y2]", "Cross-view", "Analyst"],
+            [[f"{time:.3f} s" if time is not None else "Not recorded", camera["camera_id"],
+              f"{row['video_relative_timestamp_seconds']:.3f} s", row["frame_number"],
+              row["object_label"].title(), f"{row['confidence_score']:.2%}",
+              f"[{row['x1']}, {row['y1']}, {row['x2']}, {row['y2']}]",
+              session_row.get("corroboration_status", "Not recorded"),
+              row["analyst_decision"] or "Not reviewed"]
+             for camera, row, session_row, time in entries],
+            [70, 65, 70, 45, 60, 70, 135, 110, width - 625],
+        ))
+    else:
+        story.append(p("No handgun or knife observations met the configured confidence threshold."))
+
+    story.append(section("Analyst Review Information"))
     all_rows = [row for _, report in camera_reports for row in report["detections"]]
     decisions = Counter(row["analyst_decision"] or "Not reviewed" for row in all_rows)
     reviewed = sum(row["analyst_decision"] is not None for row in all_rows)
@@ -241,26 +254,21 @@ def write_session_pdf(path: Path, manifest: dict) -> None:
         pair("Review coverage", f"{reviewed} of {len(all_rows)} observations reviewed"),
         pair("Decision totals", decision_summary),
     ]))
-    for camera, report in camera_reports:
-        for index, row in enumerate(report["detections"]):
-            elements = [
-                p(f"Observation {row['observation_id']}", styles["Observation"]),
-                field_table([
-                    pair("Analyst Review Decision", row["analyst_decision"] or "Not reviewed"),
-                    pair("Analyst notes", row["analyst_notes"] or "No notes provided."),
-                    pair("Review timestamp (UTC)", row["reviewed_at"]),
-                ]),
-            ]
-            if index == 0:
-                elements.insert(0, camera_heading(camera, report))
-            story.append(KeepTogether(elements))
-        if not report["detections"]:
-            story.append(KeepTogether([
-                camera_heading(camera, report),
-                p("There are no observations available for analyst review."),
-            ]))
+    if entries:
+        story.append(Spacer(1, 8))
+        story.append(record_table(
+            ["Observation ID", "Camera / frame", "Analyst decision", "Analyst notes", "Reviewed (UTC)"],
+            [[row["observation_id"], f"{camera['camera_id']} / {row['frame_number']}",
+              row["analyst_decision"] or "Not reviewed", row["analyst_notes"] or "No notes provided.",
+              row["reviewed_at"]] for camera, row, _, _ in entries],
+            [220, 90, 95, width - 530, 125],
+        ))
+    else:
+        story.append(p("There are no observations available for analyst review."))
 
-    story.append(section("Source References"))
+    story.append(section("Source References and Traceability"))
+    if manifest.get("reconstruction_note"):
+        story.append(p(manifest["reconstruction_note"]))
     for camera, report in camera_reports:
         source, processing, artifacts = report["source"], report["processing"], report["artifacts"]
         story.extend([
@@ -277,7 +285,7 @@ def write_session_pdf(path: Path, manifest: dict) -> None:
         ])
 
     story.extend([
-        section("Traceability Report"),
+        p("Session traceability", styles["Observation"]),
         field_table([
             pair("Report identifier", report_id),
             pair("Generated (UTC)", generated),
@@ -311,12 +319,12 @@ def write_session_pdf(path: Path, manifest: dict) -> None:
         canvas.saveState()
         canvas.setFont(regular, 8)
         canvas.setFillColor(colors.HexColor("#66717d"))
-        canvas.drawString(42, 23, "Forensikada | System-generated report with analyst review information")
-        canvas.drawRightString(A4[0] - 42, 23, f"Page {doc.page}")
+        canvas.drawString(42, 23, "Forensikada | Multi-camera forensic report")
+        canvas.drawRightString(page_size[0] - 42, 23, f"Page {doc.page}")
         canvas.restoreState()
 
     document = SimpleDocTemplate(
-        str(path), pagesize=A4, rightMargin=42, leftMargin=42,
+        str(path), pagesize=page_size, rightMargin=42, leftMargin=42,
         topMargin=36, bottomMargin=42, title="Forensic detection report", author="Forensikada",
     )
     document.build(story, onFirstPage=footer, onLaterPages=footer)

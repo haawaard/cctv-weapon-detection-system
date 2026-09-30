@@ -239,7 +239,7 @@ class MultiCameraReportDialog(QDialog):
                 item.setToolTip(f"{row['source_video']}\n{row['reason']}\nObservation: {row['observation_id']}")
                 table.setItem(index, column, item)
         layout.addWidget(table, 1)
-        layout.addWidget(label("Times are video-relative; source recording timestamps are unavailable. Saving produces one PDF for the whole session, plus an annotated video and structured records for each camera."))
+        layout.addWidget(label("Times are video-relative; source recording timestamps are unavailable. Saving produces a combined landscape PDF, plus an individual PDF, annotated video and structured records for each camera."))
         close = QDialogButtonBox(QDialogButtonBox.StandardButton.Close)
         close.rejected.connect(self.reject)
         layout.addWidget(close)
@@ -860,7 +860,7 @@ class MultiCameraDialog(QWidget):
         except Exception as exc:
             QMessageBox.warning(self, "Export incomplete", f"The session could not be fully saved: {exc}")
             return
-        QMessageBox.information(self, "Session saved", f"Saved one forensic PDF for all cameras, plus combined observations and an annotated video with structured records for each camera.\n\n{folder}")
+        QMessageBox.information(self, "Session saved", f"Saved a combined landscape forensic PDF and combined observations, plus an individual forensic PDF, annotated video and structured records for each camera.\n\n{folder}")
 
     def show_report(self):
         if self.results and not self.worker:

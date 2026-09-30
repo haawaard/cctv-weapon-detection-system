@@ -102,7 +102,7 @@ def build_timeline(sources, results, alignment):
 
 
 def export_session(sources, results, alignment, destination):
-    """Write one session PDF plus annotated video and structured records per camera."""
+    """Write a combined PDF and an individual PDF with saved records per camera."""
     rows, metrics = build_timeline(sources, results, alignment)
     folder = Path(destination).resolve() / f"camera-session-{datetime.now():%Y%m%d-%H%M%S}-{uuid4().hex[:8]}"
     folder.mkdir(parents=True, exist_ok=False)
@@ -117,6 +117,8 @@ def export_session(sources, results, alignment, destination):
         exported = save_result(result, folder, include_pdf=False)
         tcr = calculate_report_metrics(exported / "metric_input.csv")["tcr"]
         camera_report = json.loads((exported / "forensic_report.json").read_text(encoding="utf-8"))
+        from mockup_ui.pdf_report import write_pdf
+        write_pdf(camera_report, exported / "forensic_report.pdf", camera_id=source.camera_id)
         fingerprints = {
             "source_video": camera_report["source"]["file_at_report_generation"]["sha256"],
             "detections_csv": camera_report["artifacts"]["pipeline_detections"]["sha256"],
